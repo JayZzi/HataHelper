@@ -19,8 +19,14 @@ HataHelper/
 ├── apps/
 │   ├── web/                # Next.js приложение (веб-версия)
 │   ├── mobile/             # React Native / Expo приложение
-│   └── api/                # Бэкенд (Node.js / NestJS / Express + парсер)
+│   └── scraper/                # Бэкенд (Node.js / NestJS / Express + парсер)
 ├── packages/
+│   ├── db/                     # <--- ВСЯ ЛОГИКА БД ЗДЕСЬ
+│   │   ├── src/
+│   │   │   ├── client.ts       # Настройка и подключение к MongoDB
+│   │   │   ├── models/         # Схемы (Apartment.ts, User.ts)
+│   │   │   └── index.ts        # Экспорт моделей наружу
+│   │   └── package.json
 │   ├── ui/                 # Общие UI-компоненты (кнопки, карточки квартир)
 │   ├── typescript-config/  # Общие tsconfig
 │   └── types/              # Общие TypeScript интерфейсы (модели квартиры, фильтров)
@@ -32,7 +38,7 @@ HataHelper/
 ---------
 Порядок тасок
 -Разворот
-1)Инициализация монорепозитория: Используйте Turborepo или pnpm workspaces.
+1)Инициализация монорепозитория: Используйте Turborepo или pnpm workspaces. +
 2)Развернуть NEXT.js приложение в папке веб(там и апи роуты и веб)
 3)В api (наверное переназовем на scraper) написать на ноде скрипт парсера
 4)В тайпс сохранять типы с которыми буду рабоатть
