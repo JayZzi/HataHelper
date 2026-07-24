@@ -1,42 +1,41 @@
 import { connectDB, disconnectDB, Apartment } from '@hatahelper/db';
+import { parseListingPage } from './parser.js';
 
-async function main() {
-  console.log('Connecting to database...');
+// Страница с долгосрочной арендой квартир в Минске
+const TARGET_URL = 'https://realt.by/rent/flat-for-long/';
+
+async function runScraper() {
+  console.log('🚀 Запуск скрапера...');
+  
   await connectDB();
 
-  console.log('Creating test apartment entry...');
+  console.log(`📡 Скачиваем страницу: ${TARGET_URL}`);
+  const parsedItems = await parseListingPage(TARGET_URL);
 
-  // Используем updateOne с upsert: true,
-  // чтобы при повторном запуске скрипта не было ошибки уникальности realtId
-  const result = await Apartment.updateOne(
-    { realtId: 'test-12345' },
-    {
-      $set: {
-        url: 'https://realt.by/apartment/test-12345/',
-        title: 'Тестовая 2-комнатная квартира',
-        priceUsd: 500,
-        priceByn: 1600,
-        address: 'г. Минск, пр-т Независимости, 1',
-        rooms: 2,
-        areaTotal: 55.4,
-        images: ['https://example.com/photo1.jpg'],
-      },
-    },
-    { upsert: true }
-  );
+  console.log(`🔍 Найдено объявлений: ${parsedItems.length}`);
 
-  console.log('Saved successfully!', result);
+  let savedCount = 0;
 
-  // Получаем созданную запись из базы для проверки
-  const savedApartment = await Apartment.findOne({ realtId: 'test-12345' });
-  console.log('Retrieved from DB:', savedApartment);
+  for (const item of parsedItems) {
+    try {
+      await Apartment.updateOne(
+        { realtId: item.realtId },
+        { $set: item },
+        { upsert: true }
+      );
+      savedCount++;
+    } catch (err) {
+      console.error(`Ошибка сохранения объявления ${item.realtId}:`, err);
+    }
+  }
 
-  // Отключаемся от базы, чтобы скрипт завершил работу
+  console.log(`✅ Успешно сохранено/обновлено в БД: ${savedCount} шт.`);
+
   await disconnectDB();
-  console.log('Disconnected from DB.');
+  console.log('Завершение работы.');
 }
 
-main().catch((err) => {
-  console.error('Error during test save:', err);
+runScraper().catch((err) => {
+  console.error('Критическая ошибка скрапера:', err);
   process.exit(1);
 });

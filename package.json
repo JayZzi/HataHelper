@@ -17,11 +17,6 @@
     "apps/*",
     "packages/*"
   ],
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "esbuild"
-    ]
-  },
   "keywords": [],
   "author": "",
   "license": "ISC",

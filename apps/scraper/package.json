@@ -7,10 +7,13 @@
     "build": "tsc"
   },
   "dependencies": {
-    "@hatahelper/db": "workspace:*"
+    "@hatahelper/db": "workspace:*",
+    "axios": "^1.18.1",
+    "cheerio": "^1.2.0"
   },
   "devDependencies": {
     "@hatahelper/typescript-config": "workspace:*",
+    "@types/cheerio": "^1.0.0",
     "@types/node": "^20.19.43",
     "tsx": "^4.7.0",
     "typescript": "^5.9.3"
