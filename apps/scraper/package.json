@@ -5,5 +5,14 @@
   "scripts": {
     "dev": "tsx src/index.ts",
     "build": "tsc"
+  },
+  "dependencies": {
+    "@hatahelper/db": "workspace:*"
+  },
+  "devDependencies": {
+    "@hatahelper/typescript-config": "workspace:*",
+    "@types/node": "^20.19.43",
+    "tsx": "^4.7.0",
+    "typescript": "^5.9.3"
   }
 }
