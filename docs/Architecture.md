@@ -9,10 +9,20 @@
 
 HataHelper/
 ├── apps/
-│   ├── web/        # Next.js веб-приложение
-│   ├── mobile/     # React Native / Expo приложение
-│   └── scraper/    # Парсер и бэкенд на Node.js
-└── packages/
-    ├── db/         # Mongoose модели и подключение
-    ├── ui/         # Общие UI компоненты
-    └── types/      # Общие TypeScript интерфейсы
+│   ├── web/                # Next.js приложение (веб-версия)
+│   ├── mobile/             # React Native / Expo приложение
+│   └── scraper/            # Бэкенд и скрипты парсинга (Node.js)
+├── packages/
+│   ├── db/                 # Логика БД (Mongoose схемы, модели, клиент)
+│   ├── ui/                 # Общие UI-компоненты (Radix + Tailwind)
+│   ├── types/              # Общие TypeScript интерфейсы (Apartment, Filter и т.д.)
+│   └── typescript-config/  # Общие базовые пресеты tsconfig (base, nextjs, node)
+├── docs/                   # Вся база знаний, задачи и документация
+│   ├── RoadMap.md          # Дорожная карта и трекинг задач (Checklist)
+│   ├── Architecture.md     # Бизнес-цели и архитектурные решения
+│   ├── CheatSheet.md       # Команды pnpm, Docker, логины и доступы
+│   └── ScrapperData.md     # Справочники кодов (ремонт) и примеры JSON
+├── README.md               # Главный входной файл с быстрым стартом
+├── docker-compose.yml      # Изолированное окружение (MongoDB + Mongo Express)
+├── pnpm-workspace.yaml     # Конфигурация воркспейсов pnpm
+└── turbo.json              # Конфигурация сборки и кэша Turborepo
