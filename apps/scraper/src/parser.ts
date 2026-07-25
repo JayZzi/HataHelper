@@ -1,6 +1,7 @@
 import axios from 'axios';
 import * as cheerio from 'cheerio';
 import { Apartment } from '@hatahelper/types';
+import { getDistrictByCoordinates } from './utils/geo';
 
 const HEADERS = {
   'User-Agent':
@@ -11,9 +12,6 @@ const HEADERS = {
   'Cache-Control': 'no-cache',
 };
 
-/**
- * Рекурсивный поиск массива с объектами недвижимости внутри JSON (__NEXT_DATA__)
- */
 function findObjectsInJson(obj: any): any[] | null {
   if (!obj || typeof obj !== 'object') return null;
 
@@ -64,25 +62,25 @@ export async function parseListingPage(pageUrl: string): Promise<Apartment[]> {
     return rawObjects.map((item: any): Apartment => {
       const realtId = String(item.code || item.id);
 
-      // Валютные ставки (840 = USD, 933 = BYN)
       const priceUsd = Number(item.priceRates?.['840'] || 0);
       const priceByn = Number(item.priceRates?.['933'] || item.price || 0);
       const pricePerM2Usd = Number(item.priceRatesPerM2?.['840'] || item.pricePerM2 || 0);
 
-      // Форматирование геоданных для MongoDB GeoJSON [lng, lat]
-      const location =
+      // Форматирование геоданных GeoJSON [lng, lat]
+      const coordinates =
         Array.isArray(item.location) && item.location.length === 2
-          ? {
-              type: 'Point' as const,
-              coordinates: [item.location[0], item.location[1]] as [number, number],
-            }
+          ? ([item.location[0], item.location[1]] as [number, number])
           : undefined;
 
-      // TODO: В будущем район (district) и микрорайон/ЖК (subdistrict) 
-      // будут точно определяться на бэкенде через Point-in-Polygon (Turf.js) 
-      // по координатам location.coordinates.
-      const district = item.townDistrictName || item.districtName || 'Минск';
-      const subdistrict = undefined;
+      const location = coordinates
+        ? {
+            type: 'Point' as const,
+            coordinates,
+          }
+        : undefined;
+
+      // Точное математическое определение района и микрорайона через Turf.js
+      const { district, subdistrict } = getDistrictByCoordinates(coordinates);
 
       return {
         realtId,

@@ -9,12 +9,15 @@
   "dependencies": {
     "@hatahelper/db": "workspace:*",
     "@hatahelper/types": "workspace:*",
+    "@turf/boolean-point-in-polygon": "^7.3.5",
+    "@turf/helpers": "^7.3.5",
     "axios": "^1.18.1",
     "cheerio": "^1.2.0"
   },
   "devDependencies": {
     "@hatahelper/typescript-config": "workspace:*",
     "@types/cheerio": "^1.0.0",
+    "@types/geojson": "^7946.0.16",
     "@types/node": "^20.19.43",
     "tsx": "^4.7.0",
     "typescript": "^5.9.3"
