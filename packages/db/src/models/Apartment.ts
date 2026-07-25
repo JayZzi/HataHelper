@@ -16,6 +16,16 @@ const ApartmentSchema = new Schema<IApartmentDocument>(
     priceByn: { type: Number },
     pricePerM2Usd: { type: Number },
 
+    // История и изменение цен (ДОБАВЛЯЕМ СЮДА ВНУТРЬ)
+    priceChangeDirection: { type: Number },
+    priceChangeDate: { type: Date },
+    priceHistory: [
+      {
+        priceUsd: { type: Number, required: true },
+        date: { type: Date, default: Date.now },
+      },
+    ],
+
     // Локация
     address: { type: String, required: true },
     district: { type: String },
@@ -38,6 +48,8 @@ const ApartmentSchema = new Schema<IApartmentDocument>(
     images: { type: [String], default: [] },
     contactPhones: { type: [String], default: [] },
     agencyName: { type: String },
+
+    repairState: { type: Number, index: true },
 
     // Даты
     sourceCreatedAt: { type: Date },

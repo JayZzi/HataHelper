@@ -79,7 +79,7 @@ export async function parseListingPage(pageUrl: string): Promise<Apartment[]> {
 
       return {
         realtId,
-        url: `https://realt.by/sale/flats/object/${realtId}/`,
+        url: `https://realt.by/sale-flats/object/${realtId}/`,
         title: String(item.title || `${item.rooms || ''}-комнатная квартира`),
         description: item.description || item.headline || undefined,
 
@@ -111,6 +111,9 @@ export async function parseListingPage(pageUrl: string): Promise<Apartment[]> {
         // Даты
         sourceCreatedAt: item.createdAt ? new Date(item.createdAt) : undefined,
         sourceUpdatedAt: item.updatedAt ? new Date(item.updatedAt) : undefined,
+        priceChangeDirection: item.priceChangeDirection ?? undefined,
+        priceChangeDate: item.priceChangeDate ? new Date(item.priceChangeDate) : undefined,
+        repairState: item.repairState ? Number(item.repairState) : undefined,
       };
     });
   } catch (error: any) {

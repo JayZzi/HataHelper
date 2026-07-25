@@ -15,18 +15,45 @@ async function runScraper() {
 
   let savedCount = 0;
 
-  for (const item of parsedItems) {
-    try {
-      await Apartment.updateOne(
-        { realtId: item.realtId },
-        { $set: item },
-        { upsert: true }
-      );
-      savedCount++;
-    } catch (err) {
-      console.error(`Ошибка сохранения объявления ${item.realtId}:`, err);
+    for (const item of parsedItems) {
+        try {
+            // 1. Ищем, есть ли уже такая квартира в нашей БД
+            const existingApartment = await Apartment.findOne({ realtId: item.realtId });
+
+            if (existingApartment) {
+            // Если цена изменилась — добавляем старую цену в историю!
+            if (existingApartment.priceUsd !== item.priceUsd) {
+                console.log(
+                `📉 Изменение цены на ${item.address}: $${existingApartment.priceUsd} -> $${item.priceUsd}`
+                );
+
+                await Apartment.updateOne(
+                { realtId: item.realtId },
+                {
+                    $set: item,
+                    $push: {
+                    priceHistory: {
+                        priceUsd: existingApartment.priceUsd,
+                        date: existingApartment.updatedAt,
+                    },
+                    },
+                }
+                );
+                
+                // ТУТ В БУДУЩЕМ БУДЕТ ОТПРАВКА УВЕДОМЛЕНИЯ В TELEGRAM!
+            } else {
+                // Если цена не менялась, просто обновляем поля
+                await Apartment.updateOne({ realtId: item.realtId }, { $set: item });
+            }
+            } else {
+            // Новая квартира — просто сохраняем
+            await Apartment.create(item);
+            }
+            savedCount++;
+        } catch (err) {
+            console.error(`Ошибка сохранения ${item.realtId}:`, err);
+        }
     }
-  }
 
   console.log(`✅ Успешно сохранено/обновлено в БД: ${savedCount} шт.`);
 

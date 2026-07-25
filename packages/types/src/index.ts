@@ -1,3 +1,8 @@
+export interface PriceHistoryItem {
+  priceUsd: number;
+  date: Date;
+}
+
 export interface Apartment {
   realtId: string;
   url: string;
@@ -37,4 +42,11 @@ export interface Apartment {
   sourceUpdatedAt?: Date;
   createdAt?: Date;
   updatedAt?: Date;
+  priceChangeDirection?: number; // -1 (упала), 1 (выросла), 0
+  priceChangeDate?: Date;
+
+  repairState?: number; // Код состояния ремонта (1, 2, 3...)
+
+  // Наша собственная история цен
+  priceHistory?: PriceHistoryItem[];
 }
