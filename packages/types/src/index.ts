@@ -16,7 +16,8 @@ export interface Apartment {
 
   // Локация
   address: string;
-  district?: string;
+  district?: string;    // Административный район (например, "Первомайский район")
+  subdistrict?: string; // Микрорайон (например, "Лебяжий", "Минск Мир")
   metro?: string;
   location?: {
     type: 'Point';

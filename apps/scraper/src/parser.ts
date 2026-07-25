@@ -11,9 +11,6 @@ const HEADERS = {
   'Cache-Control': 'no-cache',
 };
 
-/**
- * Рекурсивный поиск массива с объектами недвижимости внутри JSON (__NEXT_DATA__)
- */
 function findObjectsInJson(obj: any): any[] | null {
   if (!obj || typeof obj !== 'object') return null;
 
@@ -37,6 +34,61 @@ function findObjectsInJson(obj: any): any[] | null {
   }
 
   return null;
+}
+
+function extractDistrictAndSubdistrict(item: any): { district: string; subdistrict?: string } {
+  const title = item.title || '';
+  const address = item.address || '';
+  const street = item.streetName || '';
+  const metro = item.metroStationName || '';
+  const desc = item.description || '';
+
+  const fullText = `${title} ${address} ${street} ${metro} ${desc}`.toLowerCase();
+
+  let district = 'Минск';
+  let subdistrict: string | undefined = undefined;
+
+  // Поиск микрорайона / ЖК
+  if (fullText.includes('минск мир') || fullText.includes('минск-мир') || street.includes('Мира просп.')) {
+    subdistrict = 'Минск Мир';
+  } else if (fullText.includes('новая боровая')) {
+    subdistrict = 'Новая Боровая';
+  } else if (fullText.includes('лебяжий')) {
+    subdistrict = 'Лебяжий';
+  } else if (fullText.includes('каменная горка')) {
+    subdistrict = 'Каменная Горка';
+  } else if (fullText.includes('серебрянка')) {
+    subdistrict = 'Серебрянка';
+  } else if (fullText.includes('зеленый луг') || fullText.includes('зелёный луг')) {
+    subdistrict = 'Зеленый Луг';
+  } else if (fullText.includes('уручье')) {
+    subdistrict = 'Уручье';
+  } else if (fullText.includes('малиновка')) {
+    subdistrict = 'Малиновка';
+  }
+
+  // Поиск административного района
+  if (subdistrict === 'Минск Мир' || street.includes('Мира просп.') || metro.includes('Аэродромная')) {
+    district = 'Октябрьский';
+  } else if (fullText.includes('первомайск')) {
+    district = 'Первомайский';
+  } else if (fullText.includes('советск')) {
+    district = 'Советский';
+  } else if (fullText.includes('заводск')) {
+    district = 'Заводской';
+  } else if (fullText.includes('ленинск')) {
+    district = 'Ленинский';
+  } else if (fullText.includes('московск')) {
+    district = 'Московский';
+  } else if (fullText.includes('партизанск')) {
+    district = 'Партизанский';
+  } else if (fullText.includes('фрунзенск')) {
+    district = 'Фрунзенский';
+  } else if (fullText.includes('центральн')) {
+    district = 'Центральный';
+  }
+
+  return { district, subdistrict };
 }
 
 export async function parseListingPage(pageUrl: string): Promise<Apartment[]> {
@@ -77,20 +129,26 @@ export async function parseListingPage(pageUrl: string): Promise<Apartment[]> {
           }
         : undefined;
 
+      // Извлечение района и микрорайона
+      const { district, subdistrict } = extractDistrictAndSubdistrict(item);
+
       return {
         realtId,
         url: `https://realt.by/sale-flats/object/${realtId}/`,
         title: String(item.title || `${item.rooms || ''}-комнатная квартира`),
         description: item.description || item.headline || undefined,
 
-        // Цены
+        // Цены и динамика
         priceUsd,
         priceByn,
         pricePerM2Usd,
+        priceChangeDirection: item.priceChangeDirection ?? undefined,
+        priceChangeDate: item.priceChangeDate ? new Date(item.priceChangeDate) : undefined,
 
         // Локация
         address: String(item.address || 'Минск'),
-        district: item.stateDistrictName || undefined,
+        district,
+        subdistrict,
         metro: item.metroStationName || undefined,
         location,
 
@@ -102,6 +160,7 @@ export async function parseListingPage(pageUrl: string): Promise<Apartment[]> {
         floor: item.storey ? Number(item.storey) : undefined,
         floorsTotal: item.storeys ? Number(item.storeys) : undefined,
         buildingYear: item.buildingYear ? Number(item.buildingYear) : undefined,
+        repairState: item.repairState ? Number(item.repairState) : undefined,
 
         // Медиа и Контакты
         images: Array.isArray(item.images) ? item.images : [],
@@ -111,9 +170,6 @@ export async function parseListingPage(pageUrl: string): Promise<Apartment[]> {
         // Даты
         sourceCreatedAt: item.createdAt ? new Date(item.createdAt) : undefined,
         sourceUpdatedAt: item.updatedAt ? new Date(item.updatedAt) : undefined,
-        priceChangeDirection: item.priceChangeDirection ?? undefined,
-        priceChangeDate: item.priceChangeDate ? new Date(item.priceChangeDate) : undefined,
-        repairState: item.repairState ? Number(item.repairState) : undefined,
       };
     });
   } catch (error: any) {

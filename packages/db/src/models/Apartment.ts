@@ -28,7 +28,8 @@ const ApartmentSchema = new Schema<IApartmentDocument>(
 
     // Локация
     address: { type: String, required: true },
-    district: { type: String },
+    district: { type: String, index: true },
+    subdistrict: { type: String, index: true },
     metro: { type: String },
     location: {
       type: { type: String, enum: ['Point'], default: 'Point' },
