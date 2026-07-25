@@ -11,6 +11,9 @@ const HEADERS = {
   'Cache-Control': 'no-cache',
 };
 
+/**
+ * Рекурсивный поиск массива с объектами недвижимости внутри JSON (__NEXT_DATA__)
+ */
 function findObjectsInJson(obj: any): any[] | null {
   if (!obj || typeof obj !== 'object') return null;
 
@@ -34,61 +37,6 @@ function findObjectsInJson(obj: any): any[] | null {
   }
 
   return null;
-}
-
-function extractDistrictAndSubdistrict(item: any): { district: string; subdistrict?: string } {
-  const title = item.title || '';
-  const address = item.address || '';
-  const street = item.streetName || '';
-  const metro = item.metroStationName || '';
-  const desc = item.description || '';
-
-  const fullText = `${title} ${address} ${street} ${metro} ${desc}`.toLowerCase();
-
-  let district = 'Минск';
-  let subdistrict: string | undefined = undefined;
-
-  // Поиск микрорайона / ЖК
-  if (fullText.includes('минск мир') || fullText.includes('минск-мир') || street.includes('Мира просп.')) {
-    subdistrict = 'Минск Мир';
-  } else if (fullText.includes('новая боровая')) {
-    subdistrict = 'Новая Боровая';
-  } else if (fullText.includes('лебяжий')) {
-    subdistrict = 'Лебяжий';
-  } else if (fullText.includes('каменная горка')) {
-    subdistrict = 'Каменная Горка';
-  } else if (fullText.includes('серебрянка')) {
-    subdistrict = 'Серебрянка';
-  } else if (fullText.includes('зеленый луг') || fullText.includes('зелёный луг')) {
-    subdistrict = 'Зеленый Луг';
-  } else if (fullText.includes('уручье')) {
-    subdistrict = 'Уручье';
-  } else if (fullText.includes('малиновка')) {
-    subdistrict = 'Малиновка';
-  }
-
-  // Поиск административного района
-  if (subdistrict === 'Минск Мир' || street.includes('Мира просп.') || metro.includes('Аэродромная')) {
-    district = 'Октябрьский';
-  } else if (fullText.includes('первомайск')) {
-    district = 'Первомайский';
-  } else if (fullText.includes('советск')) {
-    district = 'Советский';
-  } else if (fullText.includes('заводск')) {
-    district = 'Заводской';
-  } else if (fullText.includes('ленинск')) {
-    district = 'Ленинский';
-  } else if (fullText.includes('московск')) {
-    district = 'Московский';
-  } else if (fullText.includes('партизанск')) {
-    district = 'Партизанский';
-  } else if (fullText.includes('фрунзенск')) {
-    district = 'Фрунзенский';
-  } else if (fullText.includes('центральн')) {
-    district = 'Центральный';
-  }
-
-  return { district, subdistrict };
 }
 
 export async function parseListingPage(pageUrl: string): Promise<Apartment[]> {
@@ -122,15 +70,19 @@ export async function parseListingPage(pageUrl: string): Promise<Apartment[]> {
       const pricePerM2Usd = Number(item.priceRatesPerM2?.['840'] || item.pricePerM2 || 0);
 
       // Форматирование геоданных для MongoDB GeoJSON [lng, lat]
-      const location = Array.isArray(item.location) && item.location.length === 2
-        ? {
-            type: 'Point' as const,
-            coordinates: [item.location[0], item.location[1]] as [number, number],
-          }
-        : undefined;
+      const location =
+        Array.isArray(item.location) && item.location.length === 2
+          ? {
+              type: 'Point' as const,
+              coordinates: [item.location[0], item.location[1]] as [number, number],
+            }
+          : undefined;
 
-      // Извлечение района и микрорайона
-      const { district, subdistrict } = extractDistrictAndSubdistrict(item);
+      // TODO: В будущем район (district) и микрорайон/ЖК (subdistrict) 
+      // будут точно определяться на бэкенде через Point-in-Polygon (Turf.js) 
+      // по координатам location.coordinates.
+      const district = item.townDistrictName || item.districtName || 'Минск';
+      const subdistrict = undefined;
 
       return {
         realtId,
