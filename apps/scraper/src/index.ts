@@ -1,18 +1,17 @@
 import { connectDB, disconnectDB, Apartment } from '@hatahelper/db';
 import { parseListingPage } from './parser.js';
 
-// Страница с долгосрочной арендой квартир в Минске
-const TARGET_URL = 'https://realt.by/rent/flat-for-long/';
+const TARGET_URL = 'https://realt.by/sale/flats/';
 
 async function runScraper() {
-  console.log('🚀 Запуск скрапера...');
+  console.log('🚀 Запуск скрапера (Продажа квартир)...');
   
   await connectDB();
 
   console.log(`📡 Скачиваем страницу: ${TARGET_URL}`);
   const parsedItems = await parseListingPage(TARGET_URL);
 
-  console.log(`🔍 Найдено объявлений: ${parsedItems.length}`);
+  console.log(`🔍 Распарсено карточек: ${parsedItems.length}`);
 
   let savedCount = 0;
 

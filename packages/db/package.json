@@ -9,6 +9,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@hatahelper/types": "workspace:*",
     "mongoose": "^8.24.1"
   },
   "devDependencies": {

@@ -1,50 +1,54 @@
 import { Schema, model, models, Document } from 'mongoose';
+import { Apartment as ApartmentType } from '@hatahelper/types';
 
-export interface IApartment extends Document {
-  realtId: string;           // Уникальный ID объявления на realt.by
-  url: string;               // Ссылка на объявление
-  title: string;             // Заголовок ("2-к квартира...")
-  priceUsd: number;          // Цена в $
-  priceByn?: number;         // Цена в BYN
-  address: string;           // Улица, дом
-  district?: string;         // Район (например, "Первомайский")
-  metro?: string;            // Станция метро
-  rooms?: number;            // Кол-во комнат
-  areaTotal?: number;        // Общая площадь
-  areaLiving?: number;       // Жилая площадь
-  areaKitchen?: number;      // Площадь кухни
-  floor?: number;            // Этаж
-  floorsTotal?: number;      // Всего этажей
-  images: string[];          // Ссылки на фото
-  sourceCreatedAt?: Date;    // Дата публикации на источнике
-  createdAt: Date;
-  updatedAt: Date;
-}
+// Расширяем Mongoose Document базовым типом
+export interface IApartmentDocument extends ApartmentType, Document {}
 
-const ApartmentSchema = new Schema<IApartment>(
+const ApartmentSchema = new Schema<IApartmentDocument>(
   {
     realtId: { type: String, required: true, unique: true, index: true },
     url: { type: String, required: true },
     title: { type: String, required: true },
+    description: { type: String },
+
+    // Цены
     priceUsd: { type: Number, required: true, index: true },
     priceByn: { type: Number },
+    pricePerM2Usd: { type: Number },
+
+    // Локация
     address: { type: String, required: true },
     district: { type: String },
     metro: { type: String },
+    location: {
+      type: { type: String, enum: ['Point'], default: 'Point' },
+      coordinates: { type: [Number] },
+    },
+
+    // Параметры
     rooms: { type: Number, index: true },
     areaTotal: { type: Number },
     areaLiving: { type: Number },
     areaKitchen: { type: Number },
     floor: { type: Number },
     floorsTotal: { type: Number },
+    buildingYear: { type: Number },
+
+    // Медиа и Контакты
     images: { type: [String], default: [] },
+    contactPhones: { type: [String], default: [] },
+    agencyName: { type: String },
+
+    // Даты
     sourceCreatedAt: { type: Date },
+    sourceUpdatedAt: { type: Date },
   },
   {
-    timestamps: true, // Автоматически создаёт createdAt и updatedAt
+    timestamps: true,
   }
 );
 
-// Защита от переопределения модели при Hot Reload в Next.js
+ApartmentSchema.index({ location: '2dsphere' });
+
 export const Apartment =
-  models.Apartment || model<IApartment>('Apartment', ApartmentSchema);
+  models.Apartment || model<IApartmentDocument>('Apartment', ApartmentSchema);

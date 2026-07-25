@@ -19,6 +19,9 @@ importers:
       '@hatahelper/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@hatahelper/types':
+        specifier: workspace:*
+        version: link:../../packages/types
       axios:
         specifier: ^1.18.1
         version: 1.18.1(debug@4.4.3)
@@ -72,6 +75,9 @@ importers:
 
   packages/db:
     dependencies:
+      '@hatahelper/types':
+        specifier: workspace:*
+        version: link:../types
       mongoose:
         specifier: ^8.24.1
         version: 8.24.1
