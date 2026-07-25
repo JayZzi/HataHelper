@@ -2,10 +2,10 @@
 
 ## 📚 Документация
 
-* 📍 [Дорожная карта задач (Roadmap)](./docs/ROADMAP.md)
-* 🏗️ [Архитектура и бизнес-цели](./docs/ARCHITECTURE.md)
-* 🛠️ [Шпаргалка по Docker и pnpm](./docs/CHEATSHEET.md)
-* 📊 [Структура данных и справочники скрапера](./docs/SCRAPER_DATA.md)
+* 📍 [Дорожная карта задач (Roadmap)](./docs/RoadMap.md)
+* 🏗️ [Архитектура и бизнес-цели](./docs/Architecture.md)
+* 🛠️ [Шпаргалка по Docker и pnpm](./docs/CheatSheet.md)
+* 📊 [Структура данных и справочники скрапера](./docs/ScrapperData.md)
 
 ## 🚀 Технологический стек
 
